@@ -172,7 +172,7 @@ class TrainEvaluation(object):
         name = '%s_epoch_%d_acc_%s.onnx' % (model_name, epoch, str(float(acc)).replace('.', '_')[2:])
         save_path = Path(__file__).parent.parent / "trained_models"
         if not ospath.exists(save_path / model_name):
-            (save_path / model_name).mkdir()
+            (save_path / model_name).mkdir(parents=True)
         save_path = save_path / model_name / name
 
         # print('model name: ', save_path)

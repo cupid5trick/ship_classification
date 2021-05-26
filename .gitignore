@@ -145,3 +145,7 @@ cython_debug/
 
 # TensorboardX
 runs
+
+# This project
+trained_models/*
+*.assets
