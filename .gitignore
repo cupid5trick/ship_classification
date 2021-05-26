@@ -148,4 +148,4 @@ runs
 
 # This project
 trained_models/*
-*.assets
+
