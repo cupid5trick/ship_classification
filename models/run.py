@@ -6,6 +6,9 @@ import visdom
 import onnx
 
 import time
+from pathlib import Path
+import os.path as ospath
+
 
 from datasets import train_loader, test_loader
 from models.ResNet18.model import ResNet18
@@ -35,7 +38,7 @@ class TrainEvaluation(object):
         'height': 300,
     }
 
-    def __init__(self, model=ResNet18, lr=2e-3, train_loader=train_loader, test_loader=test_loader,
+    def __init__(self, model=ResNet18, lr=1e-2, train_loader=train_loader, test_loader=test_loader,
                  errviz=visdom.Visdom(env='Error-Epoch Trace'),
                  accviz=visdom.Visdom(env='Acc Epoch Trace')):
         self.model = model() if model else None
@@ -144,6 +147,7 @@ class TrainEvaluation(object):
               (count, ship_count, sea_count, total_ship, total_sea))
         print('Test Avg. Loss: %f, Acc: %f Acc. sea %f Acc. ship %f' %
               (avg_loss, total_correct/count, total_sea/sea_count, total_ship/ship_count))
+        torch.cuda.empty_cache()
         return total_correct/count
 
     def train_and_test(self, epoch):
@@ -162,11 +166,21 @@ class TrainEvaluation(object):
         print("Time used on %d test samples: %f sec" %
               (len(self.test_loader.dataset), end_time - st_time))
 
-        # dummy_input = torch.randn(1, 3, 80, 80, requires_grad=True)
-        # torch.onnx.export(self.model, (dummy_input,), "lenet.onnx")
-        #
-        # onnx_model = onnx.load("lenet.onnx")
-        # onnx.checker.check_model(onnx_model)
+        dummy_input = torch.randn(1, 3, 80, 80,).cuda(self.cur_device)
+
+        model_name = self.model.__class__.__name__.lower()
+        name = '%s_epoch_%d_acc_%s.onnx' % (model_name, epoch, str(float(acc)).replace('.', '_')[2:])
+        save_path = Path(__file__).parent.parent / "trained_models"
+        if not ospath.exists(save_path / model_name):
+            (save_path / model_name).mkdir()
+        save_path = save_path / model_name / name
+
+        # print('model name: ', save_path)
+        torch.onnx.export(self.model, (dummy_input,), save_path)
+
+        onnx_model = onnx.load(save_path)
+        onnx.checker.check_model(onnx_model)
+        torch.cuda.empty_cache()
 
     def run(self):
         for e in range(self.epoches):

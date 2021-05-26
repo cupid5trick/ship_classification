@@ -22,7 +22,7 @@ dataset = ImageFolder(
     is_valid_file = lambda f: f.endswith('.png'),
 )
 
-def train_test_split(dataset, validate_ratio = 0.2, test_ratio = 0.2):
+def train_test_split(dataset, validate_ratio = 0.1, test_ratio = 0.1):
     train_size = len(dataset) * (1 - test_ratio - validate_ratio)
     validate_size = len(dataset) * validate_ratio
     test_size = len(dataset) * test_ratio
@@ -34,7 +34,7 @@ def train_test_split(dataset, validate_ratio = 0.2, test_ratio = 0.2):
 
 train_set,  validate_set, test_set = train_test_split(dataset)
 
-batch_size = 30
+batch_size = 20
 
 train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=8)
 test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=True, num_workers=8)

@@ -84,11 +84,11 @@ class Classifier(nn.Module):
     Master Classifier: AvgPool -> FC -> softmax | sigmoid
     """
     auxiliary = False
-    ks_pool = 5
+    ks_pool = 2
     padding = 0
-    stride = 5
-    n1 = 64
-    nfc = 128
+    stride = 2
+    n1 = 512
+    nfc = 2048
     dropout = 0.7
     dropout_master = 0.4
     nlabels = 2
@@ -121,7 +121,7 @@ class Classifier(nn.Module):
 
     def make_master(self, ch_in):
         # print(self.feature_size)
-        self.feature_size = math.ceil((self.feature_size - self.ks_pool + 2*self.padding) / self.stride) + 1
+        self.feature_size = math.floor((self.feature_size - self.ks_pool + 2*self.padding) / self.stride + 1)
         self.feature_size *= self.feature_size * ch_in
         return nn.Sequential(
             nn.AvgPool2d(kernel_size=self.ks_pool, stride=self.stride, padding=self.padding),

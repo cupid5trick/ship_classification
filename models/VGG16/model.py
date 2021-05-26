@@ -25,9 +25,13 @@ class VGG16(nn.Module):
     def make_layers(self, cfgs):
         layers = []
         ch_in = self.in_channels
+
+        import math
+        ch = 80
         for cfg in cfgs:
             if cfg == 'M':
                 layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
+                ch = math.floor((ch-2+2*0)/2+1)
             elif isinstance(cfg, int):
                 layers.append(nn.Sequential(
                     nn.Conv2d(ch_in, cfg, kernel_size=3, stride=1, padding=1),
@@ -35,6 +39,7 @@ class VGG16(nn.Module):
                     nn.ReLU(),
                 ))
                 ch_in = cfg
+            # print(ch)
 
         return nn.Sequential(*layers)
 
